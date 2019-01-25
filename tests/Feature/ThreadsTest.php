@@ -11,23 +11,36 @@ class ThreadsTest extends TestCase
 {
     use DatabaseMigrations;
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->thread = factory('App\Thread')->create();
+    }
     /** @test */
     public function a_user_can_view_all_threads()
     {
-        $thread = factory('App\Thread')->create();
-
-        $response = $this->get('/threads');
-
-        $response->assertSee($thread->title);
+        $this->get('/threads')
+            ->assertSee($this->thread->title);
     }
 
     /** @test */
-    public function a_user_can_read_a_single_thread($value='')
+    public function a_user_can_read_a_single_thread()
     {
-        $thread = factory('App\Thread')->create();
+        $this->get('/threads/' .$this->thread->id)
+            ->assertSee($this->thread->title);
+    }
 
-        $response = $this->get('/threads/' .$thread->id);
+    /** @test */
+    public function a_user_can_read_replies_that_are_associated_with_a_thread()
+    {
+        // Add that thread includes replies
+        $reply = factory('App\Reply')
+                    ->create(['thread_id' => $this->thread->id]);
 
-        $response->assertSee($thread->title);
+                    // When we visit a thread page
+        $this->get('/threads/' .$this->thread->id)
+            ->assertSee($reply->body);
+        // Then we should see the replies
     }
 }
