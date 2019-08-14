@@ -3,9 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ThreadsTest extends TestCase
 {
@@ -17,6 +15,7 @@ class ThreadsTest extends TestCase
 
         $this->thread = factory('App\Thread')->create();
     }
+
     /** @test */
     public function a_user_can_view_all_threads()
     {
@@ -27,7 +26,7 @@ class ThreadsTest extends TestCase
     /** @test */
     public function a_user_can_read_a_single_thread()
     {
-        $this->get('/threads/' .$this->thread->id)
+        $this->get($this->thread->path())
             ->assertSee($this->thread->title);
     }
 
@@ -39,7 +38,7 @@ class ThreadsTest extends TestCase
                     ->create(['thread_id' => $this->thread->id]);
 
                     // When we visit a thread page
-        $this->get('/threads/' .$this->thread->id)
+        $this->get($this->thread->path())
             ->assertSee($reply->body);
         // Then we should see the replies
     }
